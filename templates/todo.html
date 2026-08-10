@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks - Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-color: #334155;
+            --border: #e2e8f0;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --btn-text: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --border: #334155;
+            --accent: #818cf8;
+            --accent-hover: #6366f1;
+            --btn-text: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+        }
+        
+        .header-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .theme-toggle, .logout-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border);
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .logout-btn {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 28px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .greeting {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-color);
+            font-size: 15px;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        button {
+            padding: 14px 24px;
+            border-radius: 10px;
+            border: none;
+            background: var(--accent);
+            color: var(--btn-text);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        button:hover { background: var(--accent-hover); }
+        button:active { transform: scale(0.97); }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            margin-top: 30px;
+        }
+
+        .task-item {
+            border-bottom: 1px solid var(--border);
+            padding: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        
+        .clear-btn {
+            background: transparent;
+            color: #ef4444;
+            padding: 5px 10px;
+            font-size: 13px;
+        }
+        .clear-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header-controls">
+        <button class="theme-toggle" id="theme-toggle">
+            <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+        </button>
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1>Workspace Tasks <span class="greeting">Hi, {{ username }}</span></h1>
+
+            <form action="/add" method="POST">
+                <div class="input-group">
+                    <input type="text" name="task_name" placeholder="What needs to be done? (Try XSS here)" required autocomplete="off">
+                    <button type="submit">Add Task</button>
+                </div>
+            </form>
+
+            <ul class="task-list">
+                {% if tasks %}
+                    {% for task in tasks %}
+                        <li class="task-item">
+                            <!-- 🚨 VULNERABLE POINT: การใส่ |safe ทำให้เบราว์เซอร์รัน XSS ได้ -->
+                            <span>{{ task[1] | safe }}</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="task-item" style="justify-content:center; color: #94a3b8;">No tasks found.</li>
+                {% endif %}
+            </ul>
+            
+            <form action="/clear" method="POST" style="margin-top: 40px; text-align: right;">
+                <button type="submit" class="clear-btn">Clear all tasks</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const root = document.documentElement;
+        const themeText = document.getElementById('theme-text');
+        const themeIcon = document.getElementById('theme-icon');
+
+        const currentTheme = localStorage.getItem('todo_theme') || 'light';
+        if (currentTheme === 'dark') {
+            root.setAttribute('data-theme', 'dark');
+            themeText.textContent = 'Light Mode';
+            themeIcon.textContent = '☀️';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const isDark = root.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                root.setAttribute('data-theme', 'light');
+                localStorage.setItem('todo_theme', 'light');
+                themeText.textContent = 'Dark Mode';
+                themeIcon.textContent = '🌙';
+            } else {
+                root.setAttribute('data-theme', 'dark');
+                localStorage.setItem('todo_theme', 'dark');
+                themeText.textContent = 'Light Mode';
+                themeIcon.textContent = '☀️';
+            }
+        });
+    </script>
+</body>
+</html>

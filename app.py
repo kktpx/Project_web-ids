@@ -1,13 +1,17 @@
 import joblib
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session, redirect, url_for, render_template_string
 import sqlite3
 from datetime import datetime
 import requests
 import urllib.parse
 import math
 import html as html_lib
+from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+app.secret_key = "super_secret_ids_key"
+app.config['SESSION_COOKIE_NAME'] = 'ids_session' # ป้องกัน Cookie ชนกับ todo_app.py
 
 # ==============================
 # Load ML model
@@ -20,7 +24,7 @@ vectorizer = joblib.load("models/vectorizer.pkl")
 # Discord Webhook
 # ==============================
 
-DISCORD_WEBHOOK = "Webhook ของลูกค้า"
+DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1480176307965792399/BpllTJGok1w55SLCh_abFjGCiFg0K9kI2zOlipTtTE5wu9Z1BhzR1iZ9JarYjEfBAJcQ"
 
 
 # ==============================
@@ -46,9 +50,14 @@ Time:
 """
     }
 
-    response = requests.post(DISCORD_WEBHOOK, json=message)
-
-    print("Discord response:", response.status_code)
+    try:
+        if DISCORD_WEBHOOK.startswith("http"):
+            response = requests.post(DISCORD_WEBHOOK, json=message, timeout=3)
+            print("Discord response:", response.status_code)
+        else:
+            print("⚠ Discord Webhook ไม่ถูกต้อง กรุณาใส่ URL ให้ถูกต้องในโค้ด app.py")
+    except Exception as e:
+        print("⚠ ไม่สามารถส่งแจ้งเตือน Discord ได้:", e)
 
 
 # ==============================
@@ -71,6 +80,20 @@ def init_db():
         )
     """)
 
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS admins (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT
+        )
+    """)
+    
+    # Create default admin if not exists
+    c.execute("SELECT * FROM admins WHERE username = 'admin'")
+    if not c.fetchone():
+        hashed_pw = generate_password_hash("admin123")
+        c.execute("INSERT INTO admins (username, password) VALUES (?, ?)", ("admin", hashed_pw))
+
     conn.commit()
     conn.close()
 
@@ -79,12 +102,253 @@ init_db()
 
 
 # ==============================
+# Authentication
+# ==============================
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        
+        conn = sqlite3.connect('logs.db')
+        c = conn.cursor()
+        c.execute("SELECT password FROM admins WHERE username = ?", (username,))
+        row = c.fetchone()
+        conn.close()
+        
+        if row and check_password_hash(row[0], password):
+            session['logged_in'] = True
+            session['username'] = username
+            next_url = request.args.get("next")
+            return redirect(next_url or url_for('dashboard'))
+        else:
+            error = "รหัสผ่านไม่ถูกต้อง (Invalid username or password)"
+
+    return render_template_string("""
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Web IDS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --border-color: #e9ecef;
+            --accent-blue: #3b82f6;
+            --btn-bg: #e2e8f0;
+            --danger: #ef4444;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --btn-bg: #334155;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-card h1 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            background: var(--accent-blue);
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover { opacity: 0.9; }
+        .login-btn:active { transform: scale(0.98); }
+
+        .error-msg {
+            color: #b91c1c;
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="theme-toggle">
+        <svg id="moon-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="sun-icon" style="display:none;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <span id="theme-text">Dark Mode</span>
+    </button>
+    <div class="login-card">
+        <h1>🛡️ Web IDS Login</h1>
+        {% if error %}
+        <div class="error-msg">{{ error }}</div>
+        {% endif %}
+        <form method="POST">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" required autocomplete="off" placeholder="admin">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required placeholder="admin123">
+            </div>
+            <button type="submit" class="login-btn">เข้าสู่ระบบ</button>
+        </form>
+    </div>
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const root = document.documentElement;
+        const themeText = document.getElementById('theme-text');
+        const moonIcon = document.getElementById('moon-icon');
+        const sunIcon = document.getElementById('sun-icon');
+
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            root.setAttribute('data-theme', 'dark');
+            themeText.textContent = 'Light Mode';
+            moonIcon.style.display = 'none';
+            sunIcon.style.display = 'block';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const isDark = root.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                root.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                themeText.textContent = 'Dark Mode';
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            } else {
+                root.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeText.textContent = 'Light Mode';
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
+    """, error=error)
+
+@app.route("/logout")
+def logout():
+    session.pop('logged_in', None)
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
+# ==============================
 # Home
 # ==============================
 
 @app.route("/")
 def home():
-    return "Web IDS Running"
+    return redirect(url_for('login'))
 
 
 # ==============================
@@ -157,6 +421,7 @@ def detect():
 # ==============================
 
 @app.route("/logs")
+@login_required
 def view_logs():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '', type=str)
@@ -465,11 +730,14 @@ def view_logs():
             <a href="/dashboard" class="back-btn">&larr; Dashboard</a>
             <h1>Request Logs</h1>
         </div>
-        <button class="theme-toggle" id="theme-toggle">
-            <svg id="moon-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            <svg id="sun-icon" style="display:none;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-            <span id="theme-text">Dark Mode</span>
-        </button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="/logout" style="color: var(--accent-red); font-weight: 600; text-decoration: none; padding: 10px 16px; border-radius: 8px; background: rgba(239, 68, 68, 0.1);">Logout</a>
+            <button class="theme-toggle" id="theme-toggle">
+                <svg id="moon-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg id="sun-icon" style="display:none;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <span id="theme-text">Dark Mode</span>
+            </button>
+        </div>
     </div>
 
     <div class="search-container">
@@ -581,6 +849,7 @@ def get_dashboard_stats():
 # ==============================
 
 @app.route("/dashboard")
+@login_required
 def dashboard():
 
     total, attack, normal, attack_rate = get_dashboard_stats()
@@ -616,6 +885,7 @@ def dashboard():
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="refresh" content="1">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web IDS Dashboard</title>
@@ -810,11 +1080,14 @@ def dashboard():
 
     <div class="header">
         <h1>Web IDS Dashboard</h1>
-        <button class="theme-toggle" id="theme-toggle">
-            <svg id="moon-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            <svg id="sun-icon" style="display:none;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-            <span id="theme-text">Dark Mode</span>
-        </button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="/logout" style="color: var(--accent-red); font-weight: 600; text-decoration: none; padding: 10px 16px; border-radius: 8px; background: rgba(239, 68, 68, 0.1);">Logout</a>
+            <button class="theme-toggle" id="theme-toggle">
+                <svg id="moon-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg id="sun-icon" style="display:none;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <span id="theme-text">Dark Mode</span>
+            </button>
+        </div>
     </div>
 
     <div class="stats-grid">
