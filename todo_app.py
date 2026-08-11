@@ -1,12 +1,15 @@
 from flask import Flask, request, render_template, g, abort, redirect, session, url_for
 import sqlite3
 import requests
+import os
 
 app = Flask(__name__)
 app.secret_key = "super_vulnerable_secret"
 app.config['SESSION_COOKIE_NAME'] = 'todo_session' # ป้องกัน Cookie ชนกับ app.py
-DATABASE = 'todo_test.db'
-IDS_URL = "http://127.0.0.1:5000/detect"
+
+# รองรับการรันบน Serverless และตั้งค่า URL ชี้ไปที่ Render
+DATABASE = '/tmp/todo_test.db' if os.environ.get('VERCEL') == '1' else 'todo_test.db'
+IDS_URL = os.environ.get('IDS_URL', "https://project-web-ids.onrender.com/detect")
 
 def get_db():
     db = getattr(g, '_database', None)
