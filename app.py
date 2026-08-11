@@ -8,10 +8,13 @@ import math
 import html as html_lib
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 app = Flask(__name__)
 app.secret_key = "super_secret_ids_key"
 app.config['SESSION_COOKIE_NAME'] = 'ids_session' # ป้องกัน Cookie ชนกับ todo_app.py
+
+DB_PATH = '/tmp/logs.db' if os.environ.get('VERCEL') == '1' else 'logs.db'
 
 # ==============================
 # Load ML model
@@ -66,7 +69,7 @@ Time:
 
 def init_db():
 
-    conn = sqlite3.connect('logs.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     c.execute("""
@@ -120,7 +123,7 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         
-        conn = sqlite3.connect('logs.db')
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute("SELECT password FROM admins WHERE username = ?", (username,))
         row = c.fetchone()
@@ -385,7 +388,7 @@ def detect():
 
     ip = request.remote_addr
 
-    conn = sqlite3.connect('logs.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     c.execute(
@@ -428,7 +431,7 @@ def view_logs():
     limit = 20
     offset = (page - 1) * limit
 
-    conn = sqlite3.connect('logs.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     if search:
@@ -822,7 +825,7 @@ def view_logs():
 
 def get_dashboard_stats():
 
-    conn = sqlite3.connect("logs.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("SELECT COUNT(*) FROM request_log")
@@ -854,7 +857,7 @@ def dashboard():
 
     total, attack, normal, attack_rate = get_dashboard_stats()
 
-    conn = sqlite3.connect("logs.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
