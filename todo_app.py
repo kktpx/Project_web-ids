@@ -7,9 +7,9 @@ app = Flask(__name__)
 app.secret_key = "super_vulnerable_secret"
 app.config['SESSION_COOKIE_NAME'] = 'todo_session' # ป้องกัน Cookie ชนกับ app.py
 
-# รองรับการรันบน Serverless และตั้งค่า URL ชี้ไปที่ Render
+# รองรับการรันบน Serverless และตั้งค่า URL ชี้ไปที่ Render หรือ Localhost
 DATABASE = '/tmp/todo_test.db' if os.environ.get('VERCEL') == '1' else 'todo_test.db'
-IDS_URL = os.environ.get('IDS_URL', "https://project-web-ids.onrender.com/detect")
+IDS_URL = os.environ.get('IDS_URL', "http://127.0.0.1:5000/detect")
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -60,6 +60,10 @@ def waf_middleware():
                     abort(403, description="Access Denied: Malicious Request Blocked by Web Application Firewall.")
         except Exception as e:
             pass
+
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template('403.html', description=e.description), 403
 
 # ==========================================
 # 📝 โค้ดของเว็บ Todo List

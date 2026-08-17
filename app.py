@@ -143,151 +143,180 @@ def login():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Web IDS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Login — Web IDS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f8f9fa;
-            --text-color: #212529;
-            --card-bg: #ffffff;
-            --border-color: #e9ecef;
-            --accent-blue: #3b82f6;
-            --btn-bg: #e2e8f0;
-            --danger: #ef4444;
+            --bg: #f7f5f2;
+            --surface: #ffffff;
+            --border: rgba(0,0,0,0.06);
+            --text: #1a1a2e;
+            --text-muted: #8a8a9e;
+            --accent: #b8942e;
+            --accent-hover: #a07e20;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
         }
-
         [data-theme="dark"] {
-            --bg-color: #0f172a;
-            --text-color: #f8fafc;
-            --card-bg: #1e293b;
-            --border-color: #334155;
-            --btn-bg: #334155;
-            --danger: #ef4444;
+            --bg: #0d0d1a;
+            --surface: #16162a;
+            --border: rgba(255,255,255,0.06);
+            --text: #e8e6e3;
+            --text-muted: #7a7a8e;
+            --accent: #c9a96e;
+            --accent-hover: #dfc088;
+            --danger: #e05252;
+            --danger-bg: rgba(224,82,82,0.1);
         }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
-
-        .login-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
+        .login-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px 40px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+            animation: fadeInUp 0.5s ease-out;
+            transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        [data-theme="dark"] .login-card {
+            background: rgba(22,22,42,0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .logo-icon {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .logo-icon svg {
+            color: var(--accent);
+        }
         .login-card h1 {
             text-align: center;
-            margin-top: 0;
-            margin-bottom: 30px;
-            font-weight: 600;
-            color: var(--text-color);
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
         }
-
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            font-weight: 400;
+        }
         .form-group {
             margin-bottom: 20px;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #64748b;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-
         .form-group input {
             width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-color);
-            color: var(--text-color);
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
             font-size: 15px;
             font-family: 'Inter', sans-serif;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        
         .form-group input:focus {
             outline: none;
-            border-color: var(--accent-blue);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(201,169,110,0.1);
         }
-
+        [data-theme="dark"] .form-group input:focus {
+            box-shadow: 0 0 0 3px rgba(201,169,110,0.15);
+        }
         .login-btn {
             width: 100%;
             padding: 14px;
-            border-radius: 8px;
+            border-radius: 10px;
             border: none;
-            background: var(--accent-blue);
-            color: white;
+            background: var(--accent);
+            color: #fff;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
             cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
-            margin-top: 10px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            margin-top: 8px;
+            letter-spacing: 0.01em;
         }
-
-        .login-btn:hover { opacity: 0.9; }
+        .login-btn:hover { background: var(--accent-hover); }
         .login-btn:active { transform: scale(0.98); }
-
         .error-msg {
-            color: #b91c1c;
-            background: #fee2e2;
-            border: 1px solid #fca5a5;
-            padding: 10px;
-            border-radius: 8px;
+            color: var(--danger);
+            background: var(--danger-bg);
+            border: 1px solid rgba(220,38,38,0.15);
+            padding: 12px 16px;
+            border-radius: 10px;
             margin-bottom: 20px;
             text-align: center;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 500;
         }
-
         .theme-toggle {
-            position: absolute;
+            position: fixed;
             top: 20px;
             right: 20px;
-            background: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 14px;
+            justify-content: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        [data-theme="dark"] .theme-toggle {
+            background: rgba(22,22,42,0.6);
+        }
+        .theme-toggle:hover {
+            color: var(--accent);
         }
     </style>
 </head>
 <body>
-    <button class="theme-toggle" id="theme-toggle">
-        <svg id="moon-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-        <svg id="sun-icon" style="display:none;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-        <span id="theme-text">Dark Mode</span>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <svg id="moon-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="sun-icon" style="display:none;" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
     </button>
     <div class="login-card">
-        <h1>🛡️ Web IDS Login</h1>
+        <div class="logo-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        </div>
+        <h1>Web IDS</h1>
+        <p class="subtitle">Intrusion Detection System</p>
         {% if error %}
         <div class="error-msg">{{ error }}</div>
         {% endif %}
@@ -300,20 +329,18 @@ def login():
                 <label>Password</label>
                 <input type="password" name="password" required placeholder="admin123">
             </div>
-            <button type="submit" class="login-btn">เข้าสู่ระบบ</button>
+            <button type="submit" class="login-btn">Sign In</button>
         </form>
     </div>
     <script>
         const toggleBtn = document.getElementById('theme-toggle');
         const root = document.documentElement;
-        const themeText = document.getElementById('theme-text');
         const moonIcon = document.getElementById('moon-icon');
         const sunIcon = document.getElementById('sun-icon');
 
         const currentTheme = localStorage.getItem('theme') || 'light';
         if (currentTheme === 'dark') {
             root.setAttribute('data-theme', 'dark');
-            themeText.textContent = 'Light Mode';
             moonIcon.style.display = 'none';
             sunIcon.style.display = 'block';
         }
@@ -323,13 +350,11 @@ def login():
             if (isDark) {
                 root.setAttribute('data-theme', 'light');
                 localStorage.setItem('theme', 'light');
-                themeText.textContent = 'Dark Mode';
                 moonIcon.style.display = 'block';
                 sunIcon.style.display = 'none';
             } else {
                 root.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
-                themeText.textContent = 'Light Mode';
                 moonIcon.style.display = 'none';
                 sunIcon.style.display = 'block';
             }
@@ -474,223 +499,185 @@ def view_logs():
 
     html = f"""
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Logs - Web IDS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Request Logs — Web IDS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {{
-            --bg-color: #f8f9fa;
-            --text-color: #212529;
-            --card-bg: #ffffff;
-            --border-color: #e9ecef;
-            --accent-blue: #3b82f6;
-            --accent-red: #ef4444;
-            --accent-green: #10b981;
-            --btn-bg: #e2e8f0;
-            --btn-text: #1e293b;
-            --badge-bg-red: #fee2e2;
-            --badge-text-red: #b91c1c;
-            --badge-bg-green: #d1fae5;
-            --badge-text-green: #047857;
+            --bg: #f7f5f2;
+            --surface: #ffffff;
+            --surface-hover: #faf9f7;
+            --border: rgba(0,0,0,0.06);
+            --text: #1a1a2e;
+            --text-muted: #8a8a9e;
+            --accent: #b8942e;
+            --accent-hover: #a07e20;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
         }}
-
         [data-theme="dark"] {{
-            --bg-color: #0f172a;
-            --text-color: #f8fafc;
-            --card-bg: #1e293b;
-            --border-color: #334155;
-            --btn-bg: #334155;
-            --btn-text: #f8fafc;
-            --badge-bg-red: #7f1d1d;
-            --badge-text-red: #fca5a5;
-            --badge-bg-green: #064e3b;
-            --badge-text-green: #6ee7b7;
+            --bg: #0d0d1a;
+            --surface: #16162a;
+            --surface-hover: #1e1e36;
+            --border: rgba(255,255,255,0.06);
+            --text: #e8e6e3;
+            --text-muted: #7a7a8e;
+            --accent: #c9a96e;
+            --accent-hover: #dfc088;
+            --danger: #e05252;
+            --danger-bg: rgba(224,82,82,0.1);
+            --success: #4ade80;
+            --success-bg: rgba(74,222,128,0.1);
         }}
-
-        * {{
-            box-sizing: border-box;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }}
-
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
             padding: 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }}
-
-        .header {{
+        @keyframes fadeInUp {{
+            from {{ opacity: 0; transform: translateY(12px); }}
+            to {{ opacity: 1; transform: translateY(0); }}
+        }}
+        .container {{
             width: 100%;
             max-width: 1200px;
+            animation: fadeInUp 0.5s ease-out;
+        }}
+        .header {{
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }}
-
         .header-left {{
             display: flex;
             align-items: center;
             gap: 16px;
         }}
-
         .back-btn {{
-            color: var(--text-color);
+            color: var(--text);
             text-decoration: none;
-            background: var(--btn-bg);
-            padding: 8px 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
             border-radius: 8px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }}
-        
-        .back-btn:hover {{
-            opacity: 0.9;
-        }}
-
+        .back-btn:hover {{ background: var(--surface-hover); }}
         .header h1 {{
-            margin: 0;
             font-weight: 600;
             font-size: 24px;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.02em;
         }}
-
-        .theme-toggle {{
-            background: var(--btn-bg);
-            color: var(--btn-text);
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            outline: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }}
-
-        .theme-toggle:hover {{
-            opacity: 0.9;
-        }}
-
         .search-container {{
-            width: 100%;
-            max-width: 1200px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }}
-        
         .search-form {{
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }}
-        
         .search-input {{
             flex: 1;
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            color: var(--text-color);
-            font-family: inherit;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
             font-size: 14px;
+            transition: border-color 0.2s;
         }}
-        
         .search-input:focus {{
             outline: none;
-            border-color: var(--accent-blue);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(201,169,110,0.1);
         }}
-        
         .search-btn {{
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
             border: none;
-            background: var(--accent-blue);
-            color: white;
+            background: var(--accent);
+            color: #fff;
             cursor: pointer;
             font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.2s;
         }}
-        
+        .search-btn:hover {{ background: var(--accent-hover); }}
         .clear-btn {{
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
             text-decoration: none;
-            background: var(--btn-bg);
-            color: var(--btn-text);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
             display: flex;
             align-items: center;
-            font-weight: 600;
+            font-weight: 500;
             font-size: 14px;
+            transition: background-color 0.2s;
         }}
-
+        .clear-btn:hover {{ background: var(--surface-hover); }}
         .table-container {{
-            width: 100%;
-            max-width: 1200px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            overflow-x: auto;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.02);
+            transition: background-color 0.4s ease, border-color 0.4s ease;
         }}
-
+        [data-theme="dark"] .table-container {{
+            background: rgba(22,22,42,0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }}
         table {{
             width: 100%;
             border-collapse: collapse;
             text-align: left;
         }}
-
         th, td {{
             padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border);
         }}
-
         th {{
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            color: #64748b;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background-color: rgba(0,0,0,0.02);
+            letter-spacing: 0.05em;
+            background: rgba(0,0,0,0.01);
         }}
-
-        [data-theme="dark"] th {{
-            color: #94a3b8;
-            background-color: rgba(255,255,255,0.02);
-        }}
-
-        td {{
-            font-size: 14px;
-        }}
-
-        tr:last-child td {{
-            border-bottom: none;
-        }}
-
-        tr:hover td {{
-            background-color: rgba(0,0,0,0.01);
-        }}
-
-        [data-theme="dark"] tr:hover td {{
-            background-color: rgba(255,255,255,0.01);
-        }}
-
+        [data-theme="dark"] th {{ background: rgba(255,255,255,0.02); }}
+        td {{ font-size: 14px; color: var(--text); }}
+        tr:last-child td {{ border-bottom: none; }}
+        tr:hover td {{ background-color: var(--surface-hover); }}
         .payload-cell {{
-            font-family: monospace;
-            background: var(--bg-color);
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0,0,0,0.03);
             padding: 6px 10px;
             border-radius: 6px;
             word-break: break-all;
             display: inline-block;
             max-width: 400px;
+            font-size: 13px;
         }}
-
+        [data-theme="dark"] .payload-cell {{ background: rgba(0,0,0,0.2); }}
         .badge {{
             padding: 4px 10px;
             border-radius: 20px;
@@ -698,84 +685,105 @@ def view_logs():
             font-weight: 600;
             display: inline-block;
         }}
-
         .badge-attack {{
-            background-color: var(--badge-bg-red);
-            color: var(--badge-text-red);
+            background-color: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid rgba(220,38,38,0.2);
         }}
-
         .badge-normal {{
-            background-color: var(--badge-bg-green);
-            color: var(--badge-text-green);
+            background-color: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(22,163,74,0.2);
         }}
-        
         .pagination {{
-            width: 100%;
-            max-width: 1200px;
-            margin-top: 20px;
+            margin-top: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 14px;
-            color: #64748b;
+            color: var(--text-muted);
         }}
-        
-        [data-theme="dark"] .pagination {{
-            color: #94a3b8;
+        .theme-toggle {{
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
         }}
-
+        [data-theme="dark"] .theme-toggle {{ background: rgba(22,22,42,0.6); }}
+        .theme-toggle:hover {{ color: var(--accent); }}
+        .logout-btn {{
+            position: fixed;
+            top: 20px;
+            right: 70px;
+            text-decoration: none;
+            color: var(--danger);
+            font-weight: 500;
+            font-size: 14px;
+            background: var(--danger-bg);
+            padding: 10px 16px;
+            border-radius: 10px;
+            transition: opacity 0.2s;
+        }}
+        .logout-btn:hover {{ opacity: 0.8; }}
     </style>
 </head>
 <body>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <svg id="moon-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="sun-icon" style="display:none;" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+    </button>
+    <a href="/logout" class="logout-btn">Logout</a>
 
-    <div class="header">
-        <div class="header-left">
-            <a href="/dashboard" class="back-btn">&larr; Dashboard</a>
-            <h1>Request Logs</h1>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <a href="/dashboard" class="back-btn">&larr; Dashboard</a>
+                <h1>Request Logs</h1>
+            </div>
         </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <a href="/logout" style="color: var(--accent-red); font-weight: 600; text-decoration: none; padding: 10px 16px; border-radius: 8px; background: rgba(239, 68, 68, 0.1);">Logout</a>
-            <button class="theme-toggle" id="theme-toggle">
-                <svg id="moon-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                <svg id="sun-icon" style="display:none;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                <span id="theme-text">Dark Mode</span>
-            </button>
-        </div>
-    </div>
 
-    <div class="search-container">
-        <form class="search-form" method="GET" action="/logs">
-            <input type="text" name="search" class="search-input" value="{search}" placeholder="Search IP, Payload, Prediction...">
-            <button type="submit" class="search-btn">Search</button>
-            <a href="/logs" class="clear-btn">Clear</a>
-        </form>
-    </div>
-
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Time</th>
-                    <th>Payload</th>
-                    <th>Prediction</th>
-                    <th>Confidence</th>
-                    <th>IP</th>
-                </tr>
-            </thead>
-            <tbody>
-                {rows_html}
-            </tbody>
-        </table>
-    </div>
-    
-    <div class="pagination">
-        <div>
-            Showing page {page} of {total_pages} (Total: {total_records} records)
+        <div class="search-container">
+            <form class="search-form" method="GET" action="/logs">
+                <input type="text" name="search" class="search-input" value="{search}" placeholder="Search IP, Payload, Prediction...">
+                <button type="submit" class="search-btn">Search</button>
+                <a href="/logs" class="clear-btn">Clear</a>
+            </form>
         </div>
-        <div style="display: flex; gap: 10px;">
-            {prev_btn}
-            {next_btn}
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Time</th>
+                        <th>Payload</th>
+                        <th>Prediction</th>
+                        <th>Confidence</th>
+                        <th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows_html}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="pagination">
+            <div>Showing page {page} of {total_pages} (Total: {total_records} records)</div>
+            <div style="display: flex; gap: 10px;">
+                {prev_btn}
+                {next_btn}
+            </div>
         </div>
     </div>
 
@@ -784,31 +792,26 @@ def view_logs():
         const root = document.documentElement;
         const moonIcon = document.getElementById('moon-icon');
         const sunIcon = document.getElementById('sun-icon');
-        const themeText = document.getElementById('theme-text');
 
-        // Check local storage so theme matches dashboard
         const currentTheme = localStorage.getItem('theme') || 'light';
         if (currentTheme === 'dark') {{
             root.setAttribute('data-theme', 'dark');
             moonIcon.style.display = 'none';
             sunIcon.style.display = 'block';
-            themeText.textContent = 'Light Mode';
         }}
 
         toggleBtn.addEventListener('click', () => {{
             const isDark = root.getAttribute('data-theme') === 'dark';
             if (isDark) {{
-                root.removeAttribute('data-theme');
+                root.setAttribute('data-theme', 'light');
                 localStorage.setItem('theme', 'light');
                 moonIcon.style.display = 'block';
                 sunIcon.style.display = 'none';
-                themeText.textContent = 'Dark Mode';
             }} else {{
                 root.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
                 moonIcon.style.display = 'none';
                 sunIcon.style.display = 'block';
-                themeText.textContent = 'Light Mode';
             }}
         }});
     </script>
@@ -886,250 +889,283 @@ def dashboard():
 
     html = f"""
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta http-equiv="refresh" content="1">
+    <meta http-equiv="refresh" content="5">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web IDS Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {{
-            --bg-color: #f8f9fa;
-            --text-color: #212529;
-            --card-bg: #ffffff;
-            --border-color: #e9ecef;
-            --accent-blue: #3b82f6;
-            --accent-red: #ef4444;
-            --accent-green: #10b981;
-            --accent-purple: #8b5cf6;
-            --btn-bg: #e2e8f0;
-            --btn-text: #1e293b;
+            --bg: #f7f5f2;
+            --surface: #ffffff;
+            --surface-hover: #faf9f7;
+            --border: rgba(0,0,0,0.06);
+            --text: #1a1a2e;
+            --text-muted: #8a8a9e;
+            --accent: #b8942e;
+            --accent-hover: #a07e20;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --purple: #8b5cf6;
         }}
-
         [data-theme="dark"] {{
-            --bg-color: #0f172a;
-            --text-color: #f8fafc;
-            --card-bg: #1e293b;
-            --border-color: #334155;
-            --btn-bg: #334155;
-            --btn-text: #f8fafc;
+            --bg: #0d0d1a;
+            --surface: #16162a;
+            --surface-hover: #1e1e36;
+            --border: rgba(255,255,255,0.06);
+            --text: #e8e6e3;
+            --text-muted: #7a7a8e;
+            --accent: #c9a96e;
+            --accent-hover: #dfc088;
+            --danger: #e05252;
+            --danger-bg: rgba(224,82,82,0.1);
+            --success: #4ade80;
+            --success-bg: rgba(74,222,128,0.1);
+            --purple: #a78bfa;
         }}
-
-        * {{
-            box-sizing: border-box;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }}
-
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
             padding: 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }}
-
-        .header {{
+        @keyframes fadeInUp {{
+            from {{ opacity: 0; transform: translateY(12px); }}
+            to {{ opacity: 1; transform: translateY(0); }}
+        }}
+        .container {{
             width: 100%;
-            max-width: 1000px;
+            max-width: 1200px;
+            animation: fadeInUp 0.5s ease-out;
+        }}
+        .header {{
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 40px;
         }}
-
-        .header h1 {{
-            margin: 0;
-            font-weight: 600;
-            font-size: 24px;
-            letter-spacing: -0.5px;
-        }}
-
-        .theme-toggle {{
-            background: var(--btn-bg);
-            color: var(--btn-text);
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            outline: none;
+        .header-left {{
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 16px;
         }}
-
-        .theme-toggle:hover {{
-            opacity: 0.9;
+        .header h1 {{
+            font-weight: 700;
+            font-size: 26px;
+            letter-spacing: -0.02em;
         }}
-
         .stats-grid {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 24px;
-            width: 100%;
-            max-width: 1000px;
             margin-bottom: 40px;
         }}
-
         .stat-card {{
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.02);
             display: flex;
             flex-direction: column;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }}
-
+        [data-theme="dark"] .stat-card {{
+            background: rgba(22,22,42,0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }}
+        .stat-card:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.04);
+        }}
+        [data-theme="dark"] .stat-card:hover {{
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }}
         .stat-card .title {{
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-            color: #64748b;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
             margin-bottom: 12px;
         }}
-
-        [data-theme="dark"] .stat-card .title {{
-            color: #94a3b8;
-        }}
-
         .stat-card .value {{
-            font-size: 32px;
-            font-weight: 600;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }}
-
-        .c-blue {{ color: var(--accent-blue); }}
-        .c-red {{ color: var(--accent-red); }}
-        .c-green {{ color: var(--accent-green); }}
-        .c-purple {{ color: var(--accent-purple); }}
-
+        .c-accent {{ color: var(--accent); }}
+        .c-danger {{ color: var(--danger); }}
+        .c-success {{ color: var(--success); }}
+        .c-purple {{ color: var(--purple); }}
         .recent-section {{
-            width: 100%;
-            max-width: 1000px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.02);
         }}
-
+        [data-theme="dark"] .recent-section {{
+            background: rgba(22,22,42,0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }}
+        .recent-section-header {{
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
         .recent-section h2 {{
-            margin-top: 0;
-            margin-bottom: 20px;
             font-size: 18px;
             font-weight: 600;
         }}
-
+        .view-all-link {{
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.2s;
+        }}
+        .view-all-link:hover {{ color: var(--accent-hover); }}
         table {{
             width: 100%;
             border-collapse: collapse;
             text-align: left;
         }}
-
         th, td {{
-            padding: 16px 12px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
         }}
-
         th {{
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
-            color: #64748b;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(0,0,0,0.01);
         }}
-
-        [data-theme="dark"] th {{
-            color: #94a3b8;
-        }}
-
-        td {{
-            font-size: 14px;
-        }}
-
-        tr:last-child td {{
-            border-bottom: none;
-        }}
-
+        [data-theme="dark"] th {{ background: rgba(255,255,255,0.02); }}
+        td {{ font-size: 14px; color: var(--text); }}
+        tr:last-child td {{ border-bottom: none; }}
+        tr:hover td {{ background-color: var(--surface-hover); }}
         .payload-cell {{
-            font-family: monospace;
-            background: var(--bg-color);
-            padding: 4px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0,0,0,0.03);
+            padding: 6px 10px;
             border-radius: 6px;
             word-break: break-all;
+            display: inline-block;
+            max-width: 500px;
+            font-size: 13px;
         }}
-        
-        .nav-links {{
-            margin-top: 30px;
+        [data-theme="dark"] .payload-cell {{ background: rgba(0,0,0,0.2); }}
+        .theme-toggle {{
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
         }}
-        
-        .nav-links a {{
-            color: var(--accent-blue);
+        [data-theme="dark"] .theme-toggle {{ background: rgba(22,22,42,0.6); }}
+        .theme-toggle:hover {{ color: var(--accent); }}
+        .logout-btn {{
+            position: fixed;
+            top: 20px;
+            right: 70px;
             text-decoration: none;
-            font-weight: 600;
+            color: var(--danger);
+            font-weight: 500;
+            font-size: 14px;
+            background: var(--danger-bg);
+            padding: 10px 16px;
+            border-radius: 10px;
+            transition: opacity 0.2s;
         }}
-        
-        .nav-links a:hover {{
-            text-decoration: underline;
+        .logout-btn:hover {{ opacity: 0.8; }}
+        .empty-state {{
+            padding: 40px;
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
         }}
-
     </style>
 </head>
 <body>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <svg id="moon-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg id="sun-icon" style="display:none;" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+    </button>
+    <a href="/logout" class="logout-btn">Logout</a>
 
-    <div class="header">
-        <h1>Web IDS Dashboard</h1>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <a href="/logout" style="color: var(--accent-red); font-weight: 600; text-decoration: none; padding: 10px 16px; border-radius: 8px; background: rgba(239, 68, 68, 0.1);">Logout</a>
-            <button class="theme-toggle" id="theme-toggle">
-                <svg id="moon-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                <svg id="sun-icon" style="display:none;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                <span id="theme-text">Dark Mode</span>
-            </button>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <h1>Dashboard</h1>
+            </div>
         </div>
-    </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span class="title">Total Requests</span>
-            <span class="value c-blue">{total}</span>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="title">Total Requests</span>
+                <span class="value c-accent">{total}</span>
+            </div>
+            <div class="stat-card">
+                <span class="title">Attacks Detected</span>
+                <span class="value c-danger">{attack}</span>
+            </div>
+            <div class="stat-card">
+                <span class="title">Normal Traffic</span>
+                <span class="value c-success">{normal}</span>
+            </div>
+            <div class="stat-card">
+                <span class="title">Attack Rate</span>
+                <span class="value c-purple">{attack_rate}%</span>
+            </div>
         </div>
-        <div class="stat-card">
-            <span class="title">Attacks</span>
-            <span class="value c-red">{attack}</span>
-        </div>
-        <div class="stat-card">
-            <span class="title">Normal</span>
-            <span class="value c-green">{normal}</span>
-        </div>
-        <div class="stat-card">
-            <span class="title">Attack Rate</span>
-            <span class="value c-purple">{attack_rate}%</span>
-        </div>
-    </div>
 
-    <div class="recent-section">
-        <h2>Recent Attacks</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Payload</th>
-                    <th>IP</th>
-                </tr>
-            </thead>
-            <tbody>
-                {recent_html}
-            </tbody>
-        </table>
-    </div>
-
-    <div class="nav-links">
-        <a href="/logs">View All Logs &rarr;</a>
+        <div class="recent-section">
+            <div class="recent-section-header">
+                <h2>Recent Attacks</h2>
+                <a href="/logs" class="view-all-link">View All Logs &rarr;</a>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Payload</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {recent_html if recent_html else '<tr><td colspan="3" class="empty-state">No recent attacks detected. System is secure.</td></tr>'}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -1137,30 +1173,26 @@ def dashboard():
         const root = document.documentElement;
         const moonIcon = document.getElementById('moon-icon');
         const sunIcon = document.getElementById('sun-icon');
-        const themeText = document.getElementById('theme-text');
 
         const currentTheme = localStorage.getItem('theme') || 'light';
         if (currentTheme === 'dark') {{
             root.setAttribute('data-theme', 'dark');
             moonIcon.style.display = 'none';
             sunIcon.style.display = 'block';
-            themeText.textContent = 'Light Mode';
         }}
 
         toggleBtn.addEventListener('click', () => {{
             const isDark = root.getAttribute('data-theme') === 'dark';
             if (isDark) {{
-                root.removeAttribute('data-theme');
+                root.setAttribute('data-theme', 'light');
                 localStorage.setItem('theme', 'light');
                 moonIcon.style.display = 'block';
                 sunIcon.style.display = 'none';
-                themeText.textContent = 'Dark Mode';
             }} else {{
                 root.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
                 moonIcon.style.display = 'none';
                 sunIcon.style.display = 'block';
-                themeText.textContent = 'Light Mode';
             }}
         }});
     </script>
