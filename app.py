@@ -147,8 +147,10 @@ def api_analyze():
     if not data:
         return jsonify({"error": "No payload"}), 400
 
-    payload = data.get("body") or data.get("query_string") or data.get("path", "")
-    payload = urllib.parse.unquote(payload.strip())
+    payload = (data.get("body") or "").strip() or \
+              (data.get("query_string") or "").strip() or \
+              (data.get("path") or "").strip()
+    payload = urllib.parse.unquote(payload)
 
     if not payload:
         return jsonify({"prediction": "safe", "confidence": 1.0, "attack_type": "N/A"})
