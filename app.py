@@ -147,9 +147,16 @@ def api_analyze():
     if not data:
         return jsonify({"error": "No payload"}), 400
 
-    payload = (data.get("body") or "").strip() or \
-              (data.get("query_string") or "").strip() or \
-              (data.get("path") or "").strip()
+    body = (data.get("body") or "").strip()
+    query = (data.get("query_string") or "").strip()
+    path = (data.get("path") or "").strip()
+    
+    parts = []
+    if path: parts.append(path)
+    if query: parts.append(query)
+    if body: parts.append(body)
+    
+    payload = " ".join(parts)
     payload = urllib.parse.unquote(payload)
 
     if not payload:
